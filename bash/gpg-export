@@ -1,0 +1,67 @@
+#!/bin/bash
+
+Help() {
+	# Display help
+	cat <<- EOF
+	This function helps you with exporting your GPG key.
+
+	Syntax: ./gpg-export [-c] -m <id|key> -e <email>
+	-h	Shows this help
+	-m	The mode this command runs in.
+	-e	The email to be used search the GPG key by
+	-c	Output will be copied into your clip (requires xclip)
+	EOF
+}
+
+if [ "$1" == "" ]; then
+	Help
+	exit
+fi
+
+COPY=0
+while getopts ":hce:m:" option; do
+	case $option in
+		h)
+			Help
+			exit;;
+		c)
+			COPY=1;;
+		m)
+			case "$OPTARG" in
+				id)
+					MODE=1;;
+				key)
+					MODE=2;;
+				*)
+					MODE=0;;
+			esac;;
+		e)
+			EMAIL="$OPTARG";;
+		\?)
+			>&2 printf "Error: Invalid option"
+			exit 1;;
+	esac
+done
+
+if [ "$MODE" -eq 0 ]; then
+	>&2 printf "Error: Unkown type: %s. Use one of: id, key\n" "$1"
+	exit 2
+fi
+
+ID=$(gpg --list-secret-keys --keyid-format LONG "$EMAIL" | awk '$1 == "sec" { print $2 }' | awk -F "/" '{ print $2 }')
+
+if [ "$MODE" -eq 1 ]; then
+	if [ "$COPY" -eq 1 ]; then
+		echo "$ID" | xclip -sel clip 
+	else
+		echo "$ID"
+	fi
+	exit 0
+fi
+
+if [ "$COPY" -eq 1 ]; then
+	gpg --armor --export "$ID" | xclip -set clip
+else
+	gpg --armor --export "$ID"
+fi
+
