@@ -1,6 +1,6 @@
 #!zsh
 
-sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+#sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 git clone https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerlevel10k
 sed "s/ZSH_THEME=.*/ZSH_THEME=\"powerlevel10k/powerlevel10k\"/g" "$HOME/.zshrc"
 echo "Install FiraCode NF: https://github.com/ryanoasis/nerd-fonts and set it as your terminal font"
